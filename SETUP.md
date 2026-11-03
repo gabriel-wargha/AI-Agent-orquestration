@@ -9,7 +9,7 @@ You need:
 - A Claude Pro or Max plan, with Claude Code installed and logged in. Typing `claude` in a terminal should open it.
 - Node.js 20 or newer (`node -v` to check).
 - Git, a GitHub account and the GitHub CLI, which the team uses to open pull requests: `brew install gh`, then `gh auth login`.
-- Free accounts on [supabase.com](https://supabase.com) and [vercel.com](https://vercel.com).
+- Free accounts on [neon.com](https://neon.com) and [vercel.com](https://vercel.com).
 
 ---
 
@@ -63,16 +63,29 @@ This copies the team into `studyrats/.claude`, and adds the night shift workflow
 
 ### Step 5. Create the database
 
-1. On supabase.com, create a new project called `studyrats`. Save the database password somewhere safe.
-2. Open the project's API settings (the **Connect** button shows them too) and copy the **Project URL** and the **anon** key. Don't use the service_role key, since it bypasses all security.
-3. Create a file called `.env.local` in the `studyrats` folder:
+StudyRats uses three parts of Neon: the database, Neon Auth for logins and Object Storage for the photos of notes.
 
-```
-NEXT_PUBLIC_SUPABASE_URL=paste-your-project-url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=paste-your-anon-key
+1. Install the Neon command line tool and log in. The login opens your browser, and you can sign up there if you don't have an account yet.
+
+```bash
+npm i -g neon
+neon login
 ```
 
-Git ignores `.env.local`, so it never leaves your computer.
+2. Open Claude Code in the project and let it do the fiddly setup. It already has Neon's official skills, because the script in Step 4 added them.
+
+```bash
+cd ~/Desktop/studyrats
+claude
+```
+
+Then paste this:
+
+> Set up Neon for this project using the neon skills. Link it to a new Neon project called studyrats in the aws-us-east-2 region. In neon.ts, declare Neon Auth and a private Object Storage bucket called photos. Run neon deploy so the environment variables land in .env.local. Then add NEON_AUTH_COOKIE_SECRET to .env.local, generated with openssl rand -base64 32.
+
+Approve its commands as it goes. Use the US East region, because Object Storage isn't available everywhere yet.
+
+3. **Check it worked:** `.env.local` should now contain `DATABASE_URL`, `NEON_AUTH_BASE_URL`, four `AWS_...` lines for storage and `NEON_AUTH_COOKIE_SECRET`. Git ignores this file, so your keys never leave your computer.
 
 ### Step 6. Put StudyRats on GitHub
 
@@ -82,6 +95,8 @@ git add .
 git commit -m "Start StudyRats"
 gh repo create studyrats --public --source=. --push
 ```
+
+This also saves `neon.ts`, which describes your Neon setup but holds no secrets.
 
 **Public or private?** I'd go public. GitHub Actions minutes are free for public repos, and interviewers can see your work. Your secrets stay secret either way. If you'd rather use `--private`, keep the workflow's 60-minute limit so you stay inside the 2,000 free minutes a month.
 
@@ -114,24 +129,23 @@ Review the pull request and merge it if it looks good.
    - Name: `CLAUDE_CODE_OAUTH_TOKEN`
    - Value: the token
 
-### Step 9. Add the database secrets
-
-On the same page, add two more secrets with the same values as your `.env.local`:
-
-- `NEXT_PUBLIC_SUPABASE_URL`
-- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-
-### Step 10. Test it now, don't wait for tonight
+### Step 9. Test it now, don't wait for tonight
 
 On GitHub, go to `studyrats` → **Actions** → **Night shift** → **Run workflow**.
 
-It runs for up to an hour, then leaves a pull request. The pull request is a draft if the team didn't finish or the reviewer didn't approve. If the run fails, open its log. The most common cause is a missing or misspelt secret.
+It runs for up to an hour, then leaves a pull request. The pull request is a draft if the team didn't finish or the reviewer didn't approve. If the run fails, open its log. The most common cause is a missing or misspelt `CLAUDE_CODE_OAUTH_TOKEN`.
 
-### Step 11. Connect Vercel
+### Step 10. Connect Vercel
 
-On vercel.com, choose **Add New** → **Project**, import `studyrats`, add the same two Supabase variables under **Environment Variables**, and deploy.
+1. On vercel.com, choose **Add New** → **Project** and import `studyrats`.
+2. Under **Environment Variables**, add every line from your `.env.local`. You can paste the whole file in at once. Then deploy.
+3. Tell Neon Auth that your Vercel address is allowed to log people in. Use your real address:
 
-From now on, Vercel gives every pull request its own preview link, so each morning you can try the night's work on your phone.
+```bash
+neon neon-auth domain add https://studyrats.vercel.app
+```
+
+From now on, Vercel gives every pull request its own preview link, so each morning you can try the night's work on your phone. If logging in on a preview link says "invalid domain", add that preview address the same way.
 
 ---
 
@@ -141,9 +155,9 @@ From now on, Vercel gives every pull request its own preview link, so each morni
 - **Night (about 1:17 a.m.):** the team takes the next 6 tasks and opens a pull request.
 - **Morning:**
   1. Open the pull request, and read the summary and `REVIEW.md`.
-  2. Tap the Vercel preview link and try the app.
-  3. Merge it if you're happy. If not, leave a comment or fix it during the day.
-  4. If it added files in `supabase/migrations`, apply them to your database. The easy way is to paste the SQL into Supabase's **SQL Editor**. Or run `npx supabase login`, `npx supabase link` and `npx supabase db push`.
+  2. If it added files to the `drizzle` folder, it changed the database. Update your database first: `gh pr checkout <number>`, then `npm run db:migrate`.
+  3. Tap the Vercel preview link and try the app.
+  4. Merge it if you're happy. If not, leave a comment or fix it during the day.
 
 **Merge or close each pull request before the next night.** Every night starts from `main`, so unmerged work would get done again.
 
@@ -153,7 +167,8 @@ From now on, Vercel gives every pull request its own preview link, so each morni
 
 - **Claude:** the night shift uses your plan. When you hit the limit, the run stops and the pull request stays a draft. Check that extra usage is switched off in your claude.ai settings, so you're never charged beyond your plan.
 - **GitHub Actions:** free for public repos. Private repos get 2,000 free minutes a month, and with no payment method, jobs just stop when they run out rather than charging you.
-- **Supabase and Vercel:** the free tiers are plenty. Supabase pauses free projects after about a week without use. You can restart it from the dashboard.
+- **Neon:** the free plan allows up to 100 projects, and they're never paused. The database sleeps after 5 minutes without use and wakes up on the next request, which can make the first page load a little slower. Each project gets 1 GB for the database and 5 GB for files.
+- **Vercel:** the free Hobby plan is plenty for portfolio projects.
 
 ## Safety rules built in
 
@@ -161,7 +176,12 @@ From now on, Vercel gives every pull request its own preview link, so each morni
 - Agents never merge. You do.
 - The reviewer has to approve before a pull request is marked ready, with a maximum of 3 fix rounds.
 - At night, the team can only run the commands listed in the workflow (npm, npx, node, git and `gh pr`).
-- Secrets live in GitHub secrets and `.env.local`, never in code.
+- The night shift has no database keys, so it can never touch your real data.
+- Secrets live in `.env.local`, Vercel and GitHub secrets, never in code.
+
+## Level up later: previews with their own database
+
+Right now your preview links and your live app share one database. That's fine while StudyRats has no real users. Once it has some, give each preview its own Neon branch, a free instant copy of your data, so testing never touches real users. Neon's guide for this is [preview-branches-with-vercel](https://github.com/neondatabase/preview-branches-with-vercel).
 
 ## Improving the team
 

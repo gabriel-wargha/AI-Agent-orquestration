@@ -48,9 +48,8 @@ jobs:
 
       - name: Run the team
         uses: anthropics/claude-code-action@v1
-        env:
-          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+        # No database secrets here on purpose. The team builds and tests
+        # without touching your real database.
         with:
           # Uses your Claude plan. When you hit your plan's limit, the run simply stops.
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
