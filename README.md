@@ -26,3 +26,5 @@ scripts/     install-global.sh and add-to-project.sh
 ```
 
 **To set it up, follow [SETUP.md](SETUP.md).**
+
+How I built it, and every error I hit along the way: [BUILD-LOG.md](BUILD-LOG.md).
