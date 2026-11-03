@@ -16,8 +16,11 @@ The **`/ship`** command is the team lead. It runs architect → backend → fron
 ```
 agents/      the four agents
 commands/    /ship, the team lead
-skills/      frontend-design (from anthropics/skills) and the Neon skills
-             (from neondatabase/agent-skills), both Apache 2.0 licence
+skills/      frontend-design (anthropics/skills) and the Neon skills
+             (neondatabase/agent-skills), Apache 2.0 licence;
+             verification-before-completion and systematic-debugging
+             (obra/superpowers) and ui-ux-pro-max
+             (nextlevelbuilder/ui-ux-pro-max-skill), MIT licence
 templates/   CLAUDE.md with the StudyRats brief, and the night shift workflow
 scripts/     install-global.sh and add-to-project.sh
 ```

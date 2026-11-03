@@ -59,4 +59,4 @@ jobs:
             You are already on the branch ${{ steps.branch.outputs.name }}. Use it and don't create another one.
           claude_args: |
             --max-turns 300
-            --allowedTools "Agent,Task,Read,Write,Edit,MultiEdit,Glob,Grep,LS,TodoWrite,Skill,Bash(npm:*),Bash(npx:*),Bash(node:*),Bash(git:*),Bash(gh pr:*),Bash(ls:*),Bash(mkdir:*),Bash(cat:*)"
+            --allowedTools "Agent,Task,Read,Write,Edit,MultiEdit,Glob,Grep,LS,TodoWrite,Skill,Bash(npm:*),Bash(npx:*),Bash(node:*),Bash(python3:*),Bash(git:*),Bash(gh pr:*),Bash(ls:*),Bash(mkdir:*),Bash(cat:*)"

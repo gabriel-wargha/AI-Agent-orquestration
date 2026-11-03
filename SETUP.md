@@ -175,7 +175,7 @@ From now on, Vercel gives every pull request its own preview link, so each morni
 - The team never works on `main`. Every run gets its own branch.
 - Agents never merge. You do.
 - The reviewer has to approve before a pull request is marked ready, with a maximum of 3 fix rounds.
-- At night, the team can only run the commands listed in the workflow (npm, npx, node, git and `gh pr`).
+- At night, the team can only run the commands listed in the workflow (npm, npx, node, python3, git and `gh pr`).
 - The night shift has no database keys, so it can never touch your real data.
 - Secrets live in `.env.local`, Vercel and GitHub secrets, never in code.
 
