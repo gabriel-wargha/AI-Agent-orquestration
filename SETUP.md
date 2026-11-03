@@ -152,7 +152,7 @@ From now on, Vercel gives every pull request its own preview link, so each morni
 ## Your daily rhythm
 
 - **Daytime:** code with Claude as usual, or steer the team by editing `PLAN.md` or `CLAUDE.md`.
-- **Night (about 1:17 a.m.):** the team takes the next 6 tasks and opens a pull request. After each task it saves the work and posts a 3-line progress note on the pull request, so you can follow along from your phone.
+- **Night (about 1:17 a.m.):** the team takes the next 12 tasks and opens a pull request. After each task it saves the work and posts a 3-line progress note on the pull request, so you can follow along from your phone.
 - **Morning:**
   1. Open the pull request, and read the summary and `REVIEW.md`.
   2. If it added files to the `drizzle` folder, it changed the database. Update your database first: `gh pr checkout <number>`, then `npm run db:migrate`.
